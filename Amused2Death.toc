@@ -1,0 +1,7 @@
+## Interface: 80300
+## Title: Amused2Death
+## Version: v8.3.0
+## Notes: Functionality related to raiding and guild management
+## SavedVariables: Amused2Death
+
+Amused2Death.lua
