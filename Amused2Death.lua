@@ -8,11 +8,15 @@ StaticPopupDialogs["A2D_RaidgroupNames"] = {
 
             if IsInRaid() then
                 for i=1,GetNumGroupMembers() do
-                    tinsert(plist,(UnitName('raid'..i)))
+					if(UnitExists('raid'..i)) then
+						tinsert(plist,(UnitName('raid'..i)))
+					end
                 end
             elseif IsInGroup() then
                 for i=1,GetNumGroupMembers() do
-                    tinsert(plist,(UnitName('party'..i)))
+					if(UnitExists('party'..i)) then
+						tinsert(plist,(UnitName('party'..i)))
+					end
                 end
                 tinsert(names, (UnitName("player")))
             else
