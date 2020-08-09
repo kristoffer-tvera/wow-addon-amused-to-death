@@ -68,6 +68,8 @@ function SlashCmdList.A2D(msg, editbox)
     else
         if msg == "raidlist" then 
             StaticPopup_Show ("A2D_RaidgroupNames")
+        elseif msg == "guildchatfix" then 
+            WipeLastMessages()
         else
             print("Unknown command: " .. msg)
             A2DSlashCmdListHelp()
