@@ -41,12 +41,14 @@ local A2DMailFrameSendNextButton = CreateFrame("Button", "A2DMailFrameSendNextBu
 A2DMailFrameSendNextButton:SetPoint("BOTTOM", 0, 5)
 A2DMailFrameSendNextButton:SetText("Send")
 
+local A2D_MailInProgress = false;
 local function A2DHandleNextMailClick(self, button, down)
     local name = A2DMailFrameTextPlayerName.text:GetText();
     local sum = A2DMailFrameTextGold.text:GetText();
 
     A2D_SendMail(name, sum, "A2D - Mailing");
     A2DMailFrameSendNextButton:SetEnabled(false);
+    A2D_MailInProgress = true;
 end
 A2DMailFrameSendNextButton:SetScript("OnClick", A2DHandleNextMailClick)
 
@@ -61,11 +63,13 @@ local function A2DEventHandler(self, event, ...)
         end
     elseif event == "MAIL_CLOSED" then
         A2DMailFrame:Hide()
-    elseif event == "MAIL_SEND_SUCCESS" then
+    elseif event == "MAIL_SEND_SUCCESS" and A2D_MailInProgress then
         A2D_PopulateNextMailRecipient();
         A2DMailFrameSendNextButton:SetEnabled(true);
-    elseif event == "MAIL_FAILED" then
+        A2D_MailInProgress = false;
+    elseif event == "MAIL_FAILED" and A2D_MailInProgress then
         A2DMailFrameSendNextButton:SetEnabled(true);
+        A2D_MailInProgress = false;
     end
 end
 A2DMailFrame:SetScript("OnEvent", A2DEventHandler);
