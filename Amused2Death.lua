@@ -92,7 +92,7 @@ function A2D_SendMail(name, amount, subject)
     local copper = silver * 100;
 
     SetSendMailMoney(copper);
-    SendMail(name, subject, "debug");
+    SendMail(name, subject, "For services rendered while attending what can only be described as one of the best summercamps in the entire world. Also, Swybe sends his regards by tipping his fedora. If chat sees this, vi von");
 
     DEFAULT_CHAT_FRAME:AddMessage("Sent " .. amount .. " gold to " .. name .. ".", 1, 1, 0)
 end
