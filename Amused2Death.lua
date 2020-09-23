@@ -37,22 +37,23 @@ A2DMailFrameTextGold.text:SetFont("Fonts\\ARIALN.ttf", 12, "OUTLINE")
 A2DMailFrameTextGold.text:SetPoint("CENTER",0,0)
 A2DMailFrameTextGold.text:SetText("Debug1")
 
+local A2DMailFrameSendNextButton = CreateFrame("Button", "A2DMailFrameSendNextButton", A2DMailFrame, "OptionsButtonTemplate");
+A2DMailFrameSendNextButton:SetPoint("BOTTOM", 0, 5)
+A2DMailFrameSendNextButton:SetText("Send")
+
 local function A2DHandleNextMailClick(self, button, down)
     local name = A2DMailFrameTextPlayerName.text:GetText();
     local sum = A2DMailFrameTextGold.text:GetText();
 
     A2D_SendMail(name, sum, "A2D - Mailing");
-
-    A2D_PopulateNextMailRecipient();
+    A2DMailFrameSendNextButton:SetEnabled(false);
 end
-
-local A2DMailFrameSendNextButton = CreateFrame("Button", "A2DMailFrameSendNextButton", A2DMailFrame, "OptionsButtonTemplate");
-A2DMailFrameSendNextButton:SetPoint("BOTTOM", 0, 5)
-A2DMailFrameSendNextButton:SetText("Send")
 A2DMailFrameSendNextButton:SetScript("OnClick", A2DHandleNextMailClick)
 
 A2DMailFrame:RegisterEvent("MAIL_CLOSED");
 A2DMailFrame:RegisterEvent("MAIL_SHOW");
+A2DMailFrame:RegisterEvent("MAIL_SEND_SUCCESS");
+A2DMailFrame:RegisterEvent("MAIL_FAILED");
 local function A2DEventHandler(self, event, ...)
     if event == "MAIL_SHOW" then
         if (#A2DMailDatabase > 0) then 
@@ -60,6 +61,11 @@ local function A2DEventHandler(self, event, ...)
         end
     elseif event == "MAIL_CLOSED" then
         A2DMailFrame:Hide()
+    elseif event == "MAIL_SEND_SUCCESS" then
+        A2D_PopulateNextMailRecipient();
+        A2DMailFrameSendNextButton:SetEnabled(true);
+    elseif event == "MAIL_FAILED" then
+        A2DMailFrameSendNextButton:SetEnabled(true);
     end
 end
 A2DMailFrame:SetScript("OnEvent", A2DEventHandler);
