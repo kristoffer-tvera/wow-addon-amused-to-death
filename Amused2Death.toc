@@ -1,4 +1,4 @@
-## Interface: 90002
+## Interface: 90005
 ## Title: Amused2Death
 ## Version: v9.0.2
 ## Notes: Functionality related to raiding and guild management
