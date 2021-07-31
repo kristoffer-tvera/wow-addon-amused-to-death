@@ -1,11 +1,14 @@
 -- Variables
 local A2DMailDatabase = {};
+local hasPopulatedInitialRecipientInBatch = false;
+local A2DMailFrameTextHeight = 12;
+local A2DMailFrameHeight = 70;
 
 -- Frames
 local A2DMailFrame = CreateFrame("FRAME", "FooAddonFrame");
 A2DMailFrame:SetFrameStrata("BACKGROUND")
-A2DMailFrame:SetWidth(128) -- Set these to whatever height/width is needed 
-A2DMailFrame:SetHeight(64) -- for your Texture
+A2DMailFrame:SetWidth(180) -- Set these to whatever height/width is needed 
+A2DMailFrame:SetHeight(A2DMailFrameHeight) -- for your Texture
 A2DMailFrame:SetMovable(true)
 A2DMailFrame:EnableMouse(true)
 A2DMailFrame:RegisterForDrag("LeftButton")
@@ -21,25 +24,47 @@ A2DMailFrame:Hide()
 
 local A2DMailFrameTextPlayerName = CreateFrame("Frame",nil,A2DMailFrame)
 A2DMailFrameTextPlayerName:SetWidth(1) 
-A2DMailFrameTextPlayerName:SetHeight(1) 
-A2DMailFrameTextPlayerName:SetPoint("TOP", 0, -10)
+A2DMailFrameTextPlayerName:SetHeight(14) 
+A2DMailFrameTextPlayerName:SetPoint("TOPLEFT", 0, 0)
 A2DMailFrameTextPlayerName.text = A2DMailFrameTextPlayerName:CreateFontString(nil,"ARTWORK") 
 A2DMailFrameTextPlayerName.text:SetFont("Fonts\\ARIALN.ttf", 14, "OUTLINE")
-A2DMailFrameTextPlayerName.text:SetPoint("CENTER",0,0)
+A2DMailFrameTextPlayerName.text:SetPoint("TOPLEFT", 5, -5)
 A2DMailFrameTextPlayerName.text:SetText("Debug1")
 
 local A2DMailFrameTextGold = CreateFrame("Frame",nil,A2DMailFrame)
 A2DMailFrameTextGold:SetWidth(1) 
-A2DMailFrameTextGold:SetHeight(1) 
-A2DMailFrameTextGold:SetPoint("CENTER", 0, 5)
+A2DMailFrameTextGold:SetHeight(A2DMailFrameTextHeight) 
+A2DMailFrameTextGold:SetPoint("TOPRIGHT", 0, 0)
 A2DMailFrameTextGold.text = A2DMailFrameTextGold:CreateFontString(nil,"ARTWORK") 
-A2DMailFrameTextGold.text:SetFont("Fonts\\ARIALN.ttf", 12, "OUTLINE")
-A2DMailFrameTextGold.text:SetPoint("CENTER",0,0)
+A2DMailFrameTextGold.text:SetFont("Fonts\\ARIALN.ttf", A2DMailFrameTextHeight, "OUTLINE")
+A2DMailFrameTextGold.text:SetPoint("TOPRIGHT",-5,-5)
 A2DMailFrameTextGold.text:SetText("Debug1")
 
 local A2DMailFrameSendNextButton = CreateFrame("Button", "A2DMailFrameSendNextButton", A2DMailFrame, "OptionsButtonTemplate");
-A2DMailFrameSendNextButton:SetPoint("BOTTOM", 0, 5)
+A2DMailFrameSendNextButton:SetPoint("TOP", 0, -25)
 A2DMailFrameSendNextButton:SetText("Send")
+
+local A2DMailFrameTextNext = CreateFrame("Frame",nil,A2DMailFrame)
+A2DMailFrameTextNext:SetWidth(1) 
+A2DMailFrameTextNext:SetHeight(A2DMailFrameTextHeight) 
+A2DMailFrameTextNext:SetPoint("TOP", 0, -60)
+A2DMailFrameTextNext.text = A2DMailFrameTextNext:CreateFontString(nil,"ARTWORK") 
+A2DMailFrameTextNext.text:SetFont("Fonts\\ARIALN.ttf", A2DMailFrameTextHeight, "OUTLINE")
+A2DMailFrameTextNext.text:SetPoint("CENTER", 0, 0)
+A2DMailFrameTextNext.text:SetText("Debug1\nDebug2")
+
+local function A2D_SendMail(name, amount, subject)
+    local silver = amount * 100;
+    local copper = silver * 100;
+
+    SetSendMailMoney(copper);
+    local mailMessages = {"xQcL", "Yukela was here", "If we kill it on this pull, Dumble buys us a planet.", "For services rendred in honor of the queen", "Bribe, dont tell anyone", "Hush-money", "Untraceable money from illicit activity", "Vi Von", "Morgoth stood in fire", "I'm sending YOU more gold than all the others, dont tell anyone", "I some times like awake at night and wonder how it all started."};
+    local mailMessage = mailMessages[ math.random( #mailMessages ) ]
+
+    SendMail(name, subject, mailMessage);
+
+    DEFAULT_CHAT_FRAME:AddMessage("Sent " .. amount .. " gold to " .. name .. ".", 1, 1, 0)
+end
 
 local A2D_MailInProgress = false;
 local function A2DHandleNextMailClick(self, button, down)
@@ -59,6 +84,10 @@ A2DMailFrame:RegisterEvent("MAIL_FAILED");
 local function A2DEventHandler(self, event, ...)
     if event == "MAIL_SHOW" then
         if (#A2DMailDatabase > 0) then 
+            if not hasPopulatedInitialRecipientInBatch then
+                A2D_PopulateNextMailRecipient()
+            end
+
             A2DMailFrame:Show()
         end
     elseif event == "MAIL_CLOSED" then
@@ -85,16 +114,6 @@ function A2D_WipeLastMessages()
             pcall (C_Club.DestroyMessage, guildClubId, "1", message.messageId);
         end
     end
-end
-
-function A2D_SendMail(name, amount, subject)
-    local silver = amount * 100;
-    local copper = silver * 100;
-
-    SetSendMailMoney(copper);
-    SendMail(name, subject, "For services rendered while attending what can only be described as one of the best summercamps in the entire world. Also, Bobo sends his regards by tipping his fedora. If chat sees this, vi von");
-
-    DEFAULT_CHAT_FRAME:AddMessage("Sent " .. amount .. " gold to " .. name .. ".", 1, 1, 0)
 end
 
 SLASH_A2D1 = "/a2d"
@@ -128,23 +147,18 @@ function A2DSlashCmdListHelp()
     print("guildchatfix  -- Wipes last 50 msg from gchat")
 end
 
-function A2D_debug()
-    if #A2DMailDatabase == 0 then
-        print ('Empty db');
-    else
-        for i = 1, #A2DMailDatabase do
-            local player = A2DMailDatabase [i];
-            local eq = string.find(player, '=');
-            local charName = player:sub(0, eq-1);
-            local sum = player:sub(eq+1, #player);
-
-            print('charName: ' .. charName);
-            print('sum: ' .. sum);
-        end
-    end
-end
+-- function A2D_debug()
+--     if #A2DMailDatabase == 0 then
+--         print ('Empty db');
+--     else
+--         for i, player in ipairs(A2DMailDatabase) do
+--             print (player)
+--         end
+--     end
+-- end
 
 function A2D_PopulateNextMailRecipient()
+    hasPopulatedInitialRecipientInBatch = true;
     if(#A2DMailDatabase > 0) then
         local player = table.remove(A2DMailDatabase, #A2DMailDatabase);
         local eq = string.find(player, '=');
@@ -153,9 +167,70 @@ function A2D_PopulateNextMailRecipient()
     
         A2DMailFrameTextPlayerName.text:SetText(charName)
         A2DMailFrameTextGold.text:SetText(sum)
+
+        local heightIndex = 1;
+
+        if (#A2DMailDatabase > 0) then
+            local next = 'Next up:';
+
+            for i = #A2DMailDatabase, 1, -1 do
+                player = A2DMailDatabase[i]
+                local eq = string.find(player, '=');
+                local charName = player:sub(0, eq-1);
+                local sum = player:sub(eq+1, #player);
+
+                next = next .. '\n' .. charName .. ': ' .. sum .. 'g';
+                heightIndex = heightIndex + 1;
+            end
+
+            A2DMailFrameTextNext.text:SetText(next);
+        else 
+            A2DMailFrameTextNext.text:SetText('Final mail');
+        end
+
+        local frameHeight = A2DMailFrameTextHeight * heightIndex;
+        A2DMailFrameTextNext:SetHeight(frameHeight);
+        local totalFrameHeight = A2DMailFrameHeight + frameHeight;
+        A2DMailFrame:SetHeight(totalFrameHeight);
+        
     else
+        hasPopulatedInitialRecipientInBatch = false;
         A2DMailFrame:Hide()
     end
+end
+
+local function GetSumForPlayer(character)
+    for i = 1, #A2DMailDatabase do
+        local player = A2DMailDatabase [i];
+        local eq = string.find(player, '=');
+        local charName = player:sub(0, eq-1);
+        if character == charName then
+            return tonumber(player:sub(eq+1, #player)), i
+        end
+    end
+
+    return 0, -1;
+end
+
+local function AppendDataToDb(data)
+    --A2DMailDatabase = {};
+    for player in data:gmatch("([^;]+)") do
+
+        local eq = string.find(player, '=');
+        local charName = player:sub(0, eq-1);
+        local sum = tonumber(player:sub(eq+1, #player));
+        local oldSum, index = GetSumForPlayer(charName);
+
+        if oldSum == 0 then
+            table.insert(A2DMailDatabase, player);
+        else
+            sum = sum + oldSum;
+            local result = charName .. '=' .. sum;
+            A2DMailDatabase[index] = result;
+        end
+    end
+    print ('Successfully imported ' .. #A2DMailDatabase .. ' characters into database');
+    -- A2D_PopulateNextMailRecipient();
 end
 
 -- Popup Dialogs
@@ -216,24 +291,13 @@ StaticPopupDialogs["A2D_MailDataImport"] = {
     end,
     OnAccept = function(self)
         if(self.editBox) then
-            A2DMailDatabase = {};
             local data = self.editBox:GetText();
-            for player in data:gmatch("([^;]+)") do
-                table.insert(A2DMailDatabase, player);
-            end
-            print ('Successfully imported ' .. #A2DMailDatabase .. ' characters into database');
-            A2D_PopulateNextMailRecipient();
+            AppendDataToDb(data);
         end
     end,
     EditBoxOnEnterPressed = function(self)
-        A2DMailDatabase = {};
         local data = self:GetText();
-        for player in data:gmatch("([^;]+)") do
-            table.insert(A2DMailDatabase, player);
-        end
-        print ('Successfully imported ' .. #A2DMailDatabase .. ' characters into database');
-        A2D_PopulateNextMailRecipient();
-
+        AppendDataToDb(data);
 		self:GetParent():Hide();
 		ClearCursor();
     end,
