@@ -1,5 +1,10 @@
+-- Saved Variables
+if A2DMailDatabase == nil then
+    A2DMailDatabase = {};
+end
+
 -- Variables
-local A2DMailDatabase = {};
+--local A2DMailDatabase = {};
 local hasPopulatedInitialRecipientInBatch = false;
 local A2DMailFrameTextHeight = 12;
 local A2DMailFrameHeight = 70;
@@ -29,7 +34,7 @@ A2DMailFrameTextPlayerName:SetPoint("TOPLEFT", 0, 0)
 A2DMailFrameTextPlayerName.text = A2DMailFrameTextPlayerName:CreateFontString(nil,"ARTWORK") 
 A2DMailFrameTextPlayerName.text:SetFont("Fonts\\ARIALN.ttf", 14, "OUTLINE")
 A2DMailFrameTextPlayerName.text:SetPoint("TOPLEFT", 5, -5)
-A2DMailFrameTextPlayerName.text:SetText("Debug1")
+A2DMailFrameTextPlayerName.text:SetText("")
 
 local A2DMailFrameTextGold = CreateFrame("Frame",nil,A2DMailFrame)
 A2DMailFrameTextGold:SetWidth(1) 
@@ -38,7 +43,7 @@ A2DMailFrameTextGold:SetPoint("TOPRIGHT", 0, 0)
 A2DMailFrameTextGold.text = A2DMailFrameTextGold:CreateFontString(nil,"ARTWORK") 
 A2DMailFrameTextGold.text:SetFont("Fonts\\ARIALN.ttf", A2DMailFrameTextHeight, "OUTLINE")
 A2DMailFrameTextGold.text:SetPoint("TOPRIGHT",-5,-5)
-A2DMailFrameTextGold.text:SetText("Debug1")
+A2DMailFrameTextGold.text:SetText("")
 
 local A2DMailFrameSendNextButton = CreateFrame("Button", "A2DMailFrameSendNextButton", A2DMailFrame, "OptionsButtonTemplate");
 A2DMailFrameSendNextButton:SetPoint("TOP", 0, -25)
@@ -51,7 +56,7 @@ A2DMailFrameTextNext:SetPoint("TOP", 0, -60)
 A2DMailFrameTextNext.text = A2DMailFrameTextNext:CreateFontString(nil,"ARTWORK") 
 A2DMailFrameTextNext.text:SetFont("Fonts\\ARIALN.ttf", A2DMailFrameTextHeight, "OUTLINE")
 A2DMailFrameTextNext.text:SetPoint("CENTER", 0, 0)
-A2DMailFrameTextNext.text:SetText("Debug1\nDebug2")
+A2DMailFrameTextNext.text:SetText("")
 
 local function A2D_SendMail(name, amount, subject)
     local silver = amount * 100;
@@ -81,6 +86,7 @@ A2DMailFrame:RegisterEvent("MAIL_CLOSED");
 A2DMailFrame:RegisterEvent("MAIL_SHOW");
 A2DMailFrame:RegisterEvent("MAIL_SEND_SUCCESS");
 A2DMailFrame:RegisterEvent("MAIL_FAILED");
+A2DMailFrame:RegisterEvent("PLAYER_LOGOUT");
 local function A2DEventHandler(self, event, ...)
     if event == "MAIL_SHOW" then
         if (#A2DMailDatabase > 0) then 
@@ -91,17 +97,57 @@ local function A2DEventHandler(self, event, ...)
             A2DMailFrame:Show()
         end
     elseif event == "MAIL_CLOSED" then
-        A2DMailFrame:Hide()
+        
+        A2D_UndoPopulateNextMailRecipient();
+        A2DMailFrame:Hide();
+
     elseif event == "MAIL_SEND_SUCCESS" and A2D_MailInProgress then
+
         A2D_PopulateNextMailRecipient();
         A2DMailFrameSendNextButton:SetEnabled(true);
         A2D_MailInProgress = false;
+
     elseif event == "MAIL_FAILED" and A2D_MailInProgress then
+
         A2DMailFrameSendNextButton:SetEnabled(true);
         A2D_MailInProgress = false;
+
+    elseif event == "PLAYER_LOGOUT" then
+
+        A2D_UndoPopulateNextMailRecipient();
+
     end
 end
 A2DMailFrame:SetScript("OnEvent", A2DEventHandler);
+
+function A2D_UndoPopulateNextMailRecipient()
+
+    if not hasPopulatedInitialRecipientInBatch then
+        return;
+    end
+
+    local name = A2DMailFrameTextPlayerName.text:GetText();
+    if name == nil then
+        return;
+    end
+
+    local sum = A2DMailFrameTextGold.text:GetText();
+    if sum == nil then
+        return;
+    end;
+    
+    local payload = name .. '=' .. sum;
+
+    if string.len(payload) == 1 then
+        return;
+    end
+
+    hasPopulatedInitialRecipientInBatch = false;
+    A2DMailFrameTextPlayerName.text:SetText('')
+    A2DMailFrameTextGold.text:SetText('')
+
+    table.insert(A2DMailDatabase, payload);
+end
 
 -- Functions
 function A2D_WipeLastMessages()
@@ -132,6 +178,8 @@ function SlashCmdList.A2D(msg, editbox)
         elseif msg == "reset" then 
             A2DMailDatabase = {};
             print('Successfully reset mail database');
+        elseif msg == "show" then 
+            A2D_Dump();
         else
             print("Unknown command: " .. msg)
             A2DSlashCmdListHelp()
@@ -144,18 +192,19 @@ function A2DSlashCmdListHelp()
     print("raidlist -- Brings up the list of everyone in the raid")
     print("mail -- Import data to mail-database")
     print("reset -- Resets the mail-database")
+    print("show -- Print the mail-database")
     print("guildchatfix  -- Wipes last 50 msg from gchat")
 end
 
--- function A2D_debug()
---     if #A2DMailDatabase == 0 then
---         print ('Empty db');
---     else
---         for i, player in ipairs(A2DMailDatabase) do
---             print (player)
---         end
---     end
--- end
+function A2D_Dump()
+    if #A2DMailDatabase == 0 then
+        print ('Empty db');
+    else
+        for i, player in ipairs(A2DMailDatabase) do
+            print (player)
+        end
+    end
+end
 
 function A2D_PopulateNextMailRecipient()
     hasPopulatedInitialRecipientInBatch = true;

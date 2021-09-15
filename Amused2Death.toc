@@ -2,6 +2,6 @@
 ## Title: Amused2Death
 ## Version: v9.1.0
 ## Notes: Functionality related to raiding and guild management
-## SavedVariables: Amused2Death
+## SavedVariables: A2DMailDatabase
 
 Amused2Death.lua
