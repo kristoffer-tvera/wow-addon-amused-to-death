@@ -1,6 +1,6 @@
-## Interface: 90200
+## Interface: 90205
 ## Title: Amused2Death
-## Version: v9.2.0
+## Version: v9.2.5
 ## Notes: Functionality related to raiding and guild management
 ## Author: Bsl-Stormscale
 ## SavedVariables: A2DMailDatabase
