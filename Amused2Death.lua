@@ -45,7 +45,7 @@ A2DMailFrameTextGold.text:SetFont("Fonts\\ARIALN.ttf", A2DMailFrameTextHeight, "
 A2DMailFrameTextGold.text:SetPoint("TOPRIGHT",-5,-5)
 A2DMailFrameTextGold.text:SetText("")
 
-local A2DMailFrameSendNextButton = CreateFrame("Button", "A2DMailFrameSendNextButton", A2DMailFrame, "OptionsButtonTemplate");
+local A2DMailFrameSendNextButton = CreateFrame("Button", "A2DMailFrameSendNextButton", A2DMailFrame, "UIPanelButtonTemplate");
 A2DMailFrameSendNextButton:SetPoint("TOP", 0, -25)
 A2DMailFrameSendNextButton:SetText("Send")
 
