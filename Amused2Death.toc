@@ -1,6 +1,6 @@
-## Interface: 100205
+## Interface: 100206
 ## Title: Amused2Death
-## Version: v10.2.5
+## Version: v10.2.6
 ## Notes: Functionality related to raiding and guild management
 ## Author: Bsl-Stormscale
 ## SavedVariables: A2DMailDatabase
