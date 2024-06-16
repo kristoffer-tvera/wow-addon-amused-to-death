@@ -1,4 +1,4 @@
-## Interface: 100206
+## Interface: 100207, 110000
 ## Title: Amused2Death
 ## Version: v10.2.6
 ## Notes: Functionality related to raiding and guild management
