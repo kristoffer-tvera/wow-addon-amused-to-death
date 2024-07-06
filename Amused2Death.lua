@@ -63,7 +63,7 @@ local function A2D_SendMail(name, amount, subject)
     local copper = silver * 100;
 
     SetSendMailMoney(copper);
-    local mailMessages = {"xQcL", "Yukela was here", "If we kill it on this pull, Dumble buys us a planet.", "For services rendred in honor of the queen", "Bribe, dont tell anyone", "Hush-money", "Untraceable money from illicit activity", "Vi Von", "Morgoth stood in fire", "I'm sending YOU more gold than all the others, dont tell anyone", "I some times like awake at night and wonder how it all started."};
+    local mailMessages = {"xQcL", "Some of the money that Boven DIDNT steal from us", "If we kill it on this pull, Dumble buys us a planet.", "This money was going to be spent on the Joe Rogan presidential campaign, but we all know where that ended.", "Bribe, dont tell anyone", "Hush-money", "Untraceable money from illicit activity", "Vi Von", "Reen stood in fire", "I'm sending YOU more gold than all the others, dont tell anyone", "I some times lie awake at night and wonder how it all started.", "I'm only sending you this because I lost a bet.", "Bobby Kotick would be fuming if he knew about this mail.", "Lets keep this a secret between us, okay?", "This gold has been laundered through a carwash somewhere, so spend it all immediately before there are consequences.", "I'm giving you this as a gift because of all the cute things you've been saying during raids"};
     local mailMessage = mailMessages[ math.random( #mailMessages ) ]
 
     SendMail(name, subject, mailMessage);
