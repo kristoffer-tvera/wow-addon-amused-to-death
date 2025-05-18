@@ -1,4 +1,4 @@
-## Interface: 110105
+## Interface: 110105, 110107
 ## Version: v11.1.5
 ## Title: Amused2Death
 ## Notes: Functionality related to raiding and guild management
