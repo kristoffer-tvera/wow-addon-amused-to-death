@@ -1,5 +1,5 @@
-## Interface: 110105, 110107
-## Version: v11.1.7
+## Interface: 110105, 110107, 110200
+## Version: v11.2.0
 ## Title: Amused2Death
 ## Notes: Functionality related to raiding and guild management
 ## Author: Bsl-Stormscale
